@@ -45,7 +45,7 @@ public class Main {
     private static List<List<Integer>> generateDatasets(DataGenerator datasetGenerator) {
 
         List<List<Integer>> res = new ArrayList<>();
-        for (int i = 100; i <= 9000; i += 100)
+        for (int i = 100; i <= 10000; i += 100)
             for (int j = 0; j < 30; j++)
                 res.add(datasetGenerator.generate(i, 10, 10000));
 

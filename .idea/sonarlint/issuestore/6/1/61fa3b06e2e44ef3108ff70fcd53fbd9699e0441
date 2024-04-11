@@ -1,13 +1,13 @@
 
-	java:S112n"FDefine and throw a dedicated exception instead of using a generic one.(Ò‚Òéüÿÿÿÿ8Òèºèì1J$fce21d89-9b01-4b51-bfaf-2c5569b7c1c7
-ˆ	java:S112}"FDefine and throw a dedicated exception instead of using a generic one.(Ñ÷îç8Òèºèì1J$7775b68e-b65d-47ff-9bb9-825820d17307
-	java:S112ƒ"FDefine and throw a dedicated exception instead of using a generic one.(Ò‚Òéüÿÿÿÿ8Òèºèì1J$9dba2c37-57ed-4ea3-ada0-886817472d7c
-	java:S112"FDefine and throw a dedicated exception instead of using a generic one.(Äİ»»ûÿÿÿÿ8Òèºèì1J$b886e6a4-8b95-47cc-80e7-8f2f827131a7
-	java:S112"FDefine and throw a dedicated exception instead of using a generic one.(Ò‚Òéüÿÿÿÿ8Òèºèì1J$6d921274-dbcf-409b-a443-cfd3a42e1a68
-	java:S112¯"FDefine and throw a dedicated exception instead of using a generic one.(Ò‚Òéüÿÿÿÿ8Òèºèì1J$6bb8efd2-5dc8-4be5-a1cf-4fd6d7c4d725
-	java:S112Ğ"FDefine and throw a dedicated exception instead of using a generic one.(Ò‚Òéüÿÿÿÿ8Òèºèì1J$03422f40-c97f-4db0-95e4-b4d15b7b4c04
+	java:S112n"FDefine and throw a dedicated exception instead of using a generic one.(Ò‚Òéüÿÿÿÿ8Òèºèì1J$d21854f2-94ba-4430-840a-d86f0c6597c9
+ˆ	java:S112}"FDefine and throw a dedicated exception instead of using a generic one.(Ñ÷îç8Òèºèì1J$c156e9fb-ba49-413a-b4ae-00fefcd2090b
+	java:S112ƒ"FDefine and throw a dedicated exception instead of using a generic one.(Ò‚Òéüÿÿÿÿ8Òèºèì1J$912e5e7c-c3ff-4758-9606-3225c9cb6168
+	java:S112"FDefine and throw a dedicated exception instead of using a generic one.(Äİ»»ûÿÿÿÿ8Òèºèì1J$0491017c-9670-440c-82c7-2927b3286bda
+	java:S112"FDefine and throw a dedicated exception instead of using a generic one.(Ò‚Òéüÿÿÿÿ8Òèºèì1J$e388bbfd-9df8-48e8-b671-4dd3ee4e43d5
+	java:S112¯"FDefine and throw a dedicated exception instead of using a generic one.(Ò‚Òéüÿÿÿÿ8Òèºèì1J$f03aa1bb-5372-4124-b757-74ca81bf1b2d
+	java:S112Ğ"FDefine and throw a dedicated exception instead of using a generic one.(Ò‚Òéüÿÿÿÿ8Òèºèì1J$4ebfaddd-27f3-4935-8e70-4ed22b108d7c
 •
-java:S3776<"RRefactor this method to reduce its Cognitive Complexity from 19 to the 15 allowed.(Çµí‘8òèºèì1J$f5ae5ee6-4aea-4330-9554-b5df50c0b51e
+java:S3776<"RRefactor this method to reduce its Cognitive Complexity from 19 to the 15 allowed.(Çµí‘8òèºèì1J$347fd0a0-47c2-4450-8e9c-efaa05d078f1
 Œ
-java:S3358d"DExtract this nested ternary operation into an independent statement.(ìØ„ìüÿÿÿÿ8›éºèì1J$7fd7c4fc-6b02-432e-b575-486d0a556b59
-Š	java:S899œ"BDo something with the "boolean" value returned by "createNewFile".(Ğ’Íùÿÿÿÿ8±éºèì1J$7c57f26c-a393-4896-9b99-8355f70aece2
+java:S3358d"DExtract this nested ternary operation into an independent statement.(ìØ„ìüÿÿÿÿ8›éºèì1J$91fd0f2e-8cf0-43fc-90a1-1a8c950819bb
+Š	java:S899œ"BDo something with the "boolean" value returned by "createNewFile".(Ğ’Íùÿÿÿÿ8±éºèì1J$38053c2e-b8e3-4fc5-a6ad-8866ad7b0c76
