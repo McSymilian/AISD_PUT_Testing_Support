@@ -1,0 +1,180 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[polish]{babel}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\author{Maksymilian Ryder}
+\title{Złożone struktury danych}
+
+\usepackage{hyperref}
+
+\usepackage{booktabs}
+\usepackage{multirow}
+
+\usepackage[dvipsnames]{xcolor}
+
+\usepackage{pgfplots}
+\pgfplotsset{compat=newest}
+\usepgfplotslibrary{units}
+\pgfplotsset{
+	every axis legend/.append style={
+		at={(1.01,1)},
+		anchor=north west
+	}
+}
+
+\begin{document}
+\maketitle
+\medskip 
+\medskip 
+\medskip 
+\medskip 
+Implementacja algorytmu konstruowania drzewa AVL metodą przeszukiwania binarnego oraz algorytmu konstruowania „losowego” drzewa BST
+
+
+\section{Wykresy}
+\subsection{Czas Tworzenia}
+\medskip
+\begin{tikzpicture}
+\begin{axis}[
+	width=10cm,
+	height=12cm,
+	ylabel=$time$,
+	xlabel=$size$,
+	y unit=s, y SI prefix=nano,
+%	xmode=log,
+%	ymode=log,
+	title={Creation Time}
+	]
+\addplot [smooth, mark=*, mark size=0.5pt]
+	plot [error bars/.cd, y dir = both, y explicit]
+	table[
+%		y error=creation_time_deviation,
+		x=size,
+		y=creation_time,
+		col sep=semicolon
+	]
+	{data/RandomListGenerator/AVL.csv};
+\addlegendentry{AVL}
+
+\addplot [smooth, color=Dandelion, mark=*, mark size=0.5pt]
+	plot [error bars/.cd, y dir = both, y explicit]
+	table[
+%		y error=creation_time_deviation,
+		x=size,
+		y=creation_time,
+		col sep=semicolon
+	]
+	{data/RandomListGenerator/BST.csv};
+\addlegendentry{BST}
+\end{axis}
+\end{tikzpicture}
+
+\subsection{Czas Znajdywania najmniejszej wartości}
+
+\begin{tikzpicture}
+\begin{axis}[
+	width=10cm,
+	height=5cm,
+	ylabel=$time$,
+	xlabel=$size$,
+	y unit=s, y SI prefix=nano,
+	title={Trace Smallest Value Time}
+	]
+\addplot [smooth, mark=*, mark size=0.5pt]
+	plot [error bars/.cd, y dir = both, y explicit]
+	table[
+		x=size,
+		y=trace_min_time,
+		col sep=semicolon
+	]
+	{data/RandomListGenerator/AVL.csv};
+\addlegendentry{AVL}
+
+\addplot [smooth, color=Dandelion, mark=*, mark size=0.5pt]
+	plot [error bars/.cd, y dir = both, y explicit]
+	table[
+		x=size,
+		y=find_min_time,
+		col sep=semicolon
+	]
+	{data/RandomListGenerator/BST.csv};
+\addlegendentry{BST}
+\end{axis}
+\end{tikzpicture}
+\medskip
+\subsection{Czas Przejścia Drzewa In Order}
+\medskip
+\begin{tikzpicture}
+\begin{axis}[
+	width=10cm,
+	height=5cm,
+	ylabel=$time$,
+	xlabel=$size$,
+	y unit=s, y SI prefix=nano,
+	title={Trace In Order Time}
+	]
+\addplot [smooth, mark=*, mark size=0.5pt]
+	plot [error bars/.cd, y dir = both, y explicit]
+	table[
+		x=size,
+		y=trace_in_order,
+		col sep=semicolon
+	]
+	{data/RandomListGenerator/AVL.csv};
+\addlegendentry{AVL}
+
+\addplot [smooth, color=Dandelion, mark=*, mark size=0.5pt]
+	plot [error bars/.cd, y dir = both, y explicit]
+	table[
+		x=size,
+		y=trace_inorder_time,
+		col sep=semicolon
+	]
+	{data/RandomListGenerator/BST.csv};
+\addlegendentry{BST}
+\end{axis}
+\end{tikzpicture}
+\medskip
+\subsection{Czas Balansowania Drzewa}
+\medskip
+\begin{tikzpicture}
+\begin{axis}[
+	width=10cm,
+	height=5cm,
+	ylabel=$time$,
+	xlabel=$size$,
+	y unit=s, y SI prefix=nano,
+	title={Balance BST}
+	]
+	
+\addplot [smooth, color=Dandelion, mark=*, mark size=0.5pt]
+	plot [error bars/.cd, y dir = both, y explicit]
+	table[
+		x=size,
+		y=balance_time,
+		col sep=semicolon
+	]
+	{data/RandomListGenerator/BST.csv};
+\end{axis}
+\end{tikzpicture}
+\medskip
+\section{Podsumowanie}
+
+
+Na podanych wykresach widać, różnice między AVL i BST. Przy tworzeniu BST dokonujemy prostych porównań i wsadzamy w pierwsze wolne miejsce nowy node. Inaczej sprawa wygląda w AVL gdzie po każdorazowym wsadzeniu danych musimy przebudować drzewo, równoważąc je. Istnieje jednak wyjątek od takich sytacji, jeśli dane dodawane do drzewa AVL są, pierwotnie posegregowane. W takiej sytuacji nie trzeba drzewa równoważyć, bo dane układają się same.
+
+Ten minus AVL powinien być jednak mniej dotkliwy w perspektywie częstego wyszukiwania w drzewia danych. AVL z definicji zapewnia średnią najkrótszą drogę dostępu do nodów.
+
+Czemu więc wyszukiwanie najmniejszej wartości pokrywa się czasowo z BST? Trudno na to odpowiedzieć. Trzeba wziąć pod uwagę, że implementacja tych struktur wraz z testami odbyła się przy pomocy Javy. Duże wahania mogą zostać tym faktem wytłumaczone, tym bardziej, że czasy działania algorytmów są niesamowicie małe.
+
+Próbkowanie odbyło się na grupach o liczności 30 egzemplarzy na każdy krok, co w teorii powinno zminimalizować różnice i wypłaszczyć wykresy. Niestety przez możliwe odchyły maksymalne, średnia zamiast trzymać się "idealnego wykresu" zaczyna pokazywać coraz więcej szumów. Do podobnej sytuacji doszło przy zmniejszeniu kroku generowanych wartości.
+
+Zaobserwować mnożna, że balansowanie, drzewa jest niemalże liniowe, mimo widocznych szumów.
+
+\section{Kod}
+
+\href{https://github.com/McSymilian/AISD_PUT_Testing_Support/tree/master/src/main/java/org/data_structures/tree}{GitHub repository}
+\end{document}
