@@ -1,199 +1,107 @@
 package org.data_structures.tree;
 
-import org.data_structures.utility.Duration;
-import org.data_structures.utility.Examined;
-import org.data_structures.utility.Scale;
+import org.data_structures.utility.annotation.Duration;
+import org.data_structures.utility.annotation.Exam;
+import org.data_structures.utility.annotation.Examined;
+import org.data_structures.utility.annotation.Scale;
+import org.data_structures.utility.Structure;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Examined
-public class AVL<T extends Comparable<T>> extends BST<T> {
-
+public class AVL<T extends Comparable<T>> extends Structure {
 
     public static<T extends Comparable<T>> AVL<T> of(List<T> values) {
         return new AVL<>(new ArrayList<>(values));
     }
 
+    /**
+     * @param values list of values to insert
+     */
+    public AVL(List<T> values) {
+        this.bst = new BST<>(values);
+        var sortedList = bst.traceInOrder();
+        bst.clear();
+
+        var time = System.nanoTime();
+        buildAVL(sortedList);
+        bst.setCreationTime(System.nanoTime() - time);
+
+    }
+
+    private void buildAVL(List<T> values) {
+        buildAVL(values, 0, values.size());
+    }
+
+    private void buildAVL(List<T> values, int start, int end) {
+        if (values.isEmpty()) {
+            return;
+        }
+        int mid = (start + end) / 2;
+        bst.add(values.get(mid));
+
+        if (start != mid)
+            buildAVL(values, start, mid);
+        if (mid + 1 != end)
+            buildAVL(values, mid + 1, end);
+    }
+
     @Scale("size")
-    @Override
     public long getSize() {
-        return super.getSize();
+        return bst.getSize();
     }
 
     @Duration("creation_time")
-    @Override
     public long getCreationTime() {
-        return super.getCreationTime();
+        return bst.getCreationTime();
     }
 
     @Duration("trace_min_time")
-    @Override
     public long getTraceMinTime() {
-        return super.getTraceMinTime();
+        return bst.getTraceMinTime();
     }
 
     @Duration("trace_in_order")
-    @Override
     public long getTraceInOrderTime() {
-        return super.getTraceInOrderTime();
+        return bst.getTraceInOrderTime();
     }
 
-    @Duration("balance_time")
-    @Override
-    public long getBalanceTime() {
-        return super.getBalanceTime();
+    private final BST<T> bst;
+
+    @Exam
+    public List<T> traceMin() {
+        return bst.traceMin();
     }
 
-    public AVL(List<T> values) {
-        super(values, AVLTreeNode::of);
-
-        var list = traceInOrder();
-        clear();
-
-        final var start = System.nanoTime();
-        constructAVLBySplit(list);
-
-        setCreationTime(System.nanoTime() - start);
+    public List<T> traceMax() {
+        return bst.traceMin();
     }
 
-    private void constructAVLBySplit(List<T> values) {
-        if (values.isEmpty())
-            return;
-
-        int middleIndex = values.size() / 2;
-        this.add(values.get(middleIndex));
-        if (middleIndex > 0)
-            constructAVLBySplit(values.subList(0, middleIndex));
-
-        if (values.size() > 2)
-            constructAVLBySplit(values.subList(middleIndex + 1, values.size()));
-
+    public void removeNode(T key) {
+        bst.removeNode(key);
+        bst.balance();
     }
 
-    @Override
-    public void add(T value) {
-        setHead(add((AVLTreeNode<T>) getHead(), value));
+    @Exam
+    public List<T> traceInOrder() {
+        return bst.traceInOrder();
     }
 
-    private AVLTreeNode<T> add(AVLTreeNode<T> node, T value) {
-        if (node == null) {
-            return AVLTreeNode.of(value);
-        }
-
-        if (value.compareTo(node.getVal()) < 0) {
-            node.setChildLeft(add(node.getChildLeft(), value));
-        } else if (value.compareTo(node.getVal()) > 0) {
-            node.setChildRight(add(node.getChildRight(), value));
-        } else {
-            return node;
-        }
-        updateBalanceFactor(node);
-
-        return balance(node);
+    public List<T> tracePreOrder() {
+        return bst.tracePreOrder();
     }
 
-    @Override
-    public void balance() {
-        final var start = System.nanoTime();
-        setHead(balanceRecursive((AVLTreeNode<T>) getHead()));
-        setBalanceTime(System.nanoTime() - start);
+    public void clear() {
+        bst.clear();
     }
 
-    private AVLTreeNode<T> balanceRecursive(AVLTreeNode<T> node) {
-        if (node == null) {
-            return null;
-        }
-
-        node.setChildLeft(balanceRecursive(node.getChildLeft()));
-
-        node.setChildRight(balanceRecursive(node.getChildRight()));
-
-        updateBalanceFactor(node);
-
-        return balance(node);
+    public void printSubTree(T key) {
+        bst.printSubTree(key);
     }
 
-    private void updateBalanceFactor(AVLTreeNode<T> node) {
-        int leftHeight = node.getChildLeft() == null ? -1 : node.getChildLeft().getBalanceFactor();
-        int rightHeight = node.getChildRight() == null ? -1 : node.getChildRight().getBalanceFactor();
-        node.setBalanceFactor(rightHeight - leftHeight);
-    }
-
-    private AVLTreeNode<T> balance(AVLTreeNode<T> node) {
-        int leftBalanceFactor = node.getChildLeft() == null ? -1 : node.getChildLeft().getBalanceFactor();
-        int rightBalanceFactor = node.getChildRight() == null ? -1 : node.getChildRight().getBalanceFactor();
-
-        if (leftBalanceFactor < -1) {
-            if (rightBalanceFactor > 0) {
-                node.setChildLeft(leftRotate(node.getChildLeft()));
-            }
-            return rightRotate(node);
-        } else if (leftBalanceFactor > 1) {
-            if (node.getChildRight() != null && rightBalanceFactor < 0) {
-                node.setChildRight(rightRotate(node.getChildRight()));
-            }
-            return leftRotate(node);
-        }
-        return node;
-    }
-
-    private AVLTreeNode<T> leftRotate(AVLTreeNode<T> node) {
-        AVLTreeNode<T> pivot = node.getChildRight();
-        if (pivot == null) {
-            return node;
-        }
-        node.setChildRight(pivot.getChildLeft());
-        pivot.setChildLeft(node);
-        updateBalanceFactor(node);
-        updateBalanceFactor(pivot);
-        return pivot;
-    }
-
-    private AVLTreeNode<T> rightRotate(AVLTreeNode<T> node) {
-        AVLTreeNode<T> pivot = node.getChildLeft();
-        if (pivot == null) {
-            return node;
-        }
-        node.setChildLeft(pivot.getChildRight());
-        pivot.setChildRight(node);
-        updateBalanceFactor(node);
-        updateBalanceFactor(pivot);
-        return pivot;
-    }
-
-    public void delete(T value) {
-        setHead(deleteRecursive((AVLTreeNode<T>) getHead(), value));
-    }
-
-    private AVLTreeNode<T> deleteRecursive(AVLTreeNode<T> node, T value) {
-        if (node == null) return null;
-
-        if (value.compareTo(node.getVal()) < 0) {
-            node.setChildLeft(deleteRecursive(node.getChildLeft(), value));
-        } else if (value.compareTo(node.getVal()) > 0) {
-            node.setChildRight(deleteRecursive(node.getChildRight(), value));
-        } else {
-            if (node.getChildLeft() == null || node.getChildRight() == null) {
-                node = (node.getChildLeft() != null) ? node.getChildLeft() : node.getChildRight();
-            } else {
-                AVLTreeNode<T> successor = findMin(node.getChildRight());
-                node.setVal(successor.getVal());
-                node.setChildRight(deleteRecursive(node.getChildRight(), successor.getVal()));
-            }
-        }
-
-        if (node == null) return null;
-
-        updateBalanceFactor(node);
-
-        return balance(node);
-    }
-    private AVLTreeNode<T> findMin(AVLTreeNode<T> node) {
-        while (node.getChildLeft() != null) {
-            node = node.getChildLeft();
-        }
-        return node;
+    public void add(T val) {
+        bst.add(val);
     }
 
 }

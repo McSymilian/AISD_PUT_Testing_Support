@@ -39,19 +39,16 @@ Implementacja algorytmu konstruowania drzewa AVL metodą przeszukiwania binarneg
 \medskip
 \begin{tikzpicture}
 \begin{axis}[
-	width=10cm,
+	width=13cm,
 	height=12cm,
 	ylabel=$time$,
 	xlabel=$size$,
 	y unit=s, y SI prefix=nano,
-%	xmode=log,
-%	ymode=log,
 	title={Creation Time}
 	]
 \addplot [smooth, mark=*, mark size=0.5pt]
 	plot [error bars/.cd, y dir = both, y explicit]
 	table[
-%		y error=creation_time_deviation,
 		x=size,
 		y=creation_time,
 		col sep=semicolon
@@ -62,7 +59,6 @@ Implementacja algorytmu konstruowania drzewa AVL metodą przeszukiwania binarneg
 \addplot [smooth, color=Dandelion, mark=*, mark size=0.5pt]
 	plot [error bars/.cd, y dir = both, y explicit]
 	table[
-%		y error=creation_time_deviation,
 		x=size,
 		y=creation_time,
 		col sep=semicolon
@@ -76,7 +72,7 @@ Implementacja algorytmu konstruowania drzewa AVL metodą przeszukiwania binarneg
 
 \begin{tikzpicture}
 \begin{axis}[
-	width=10cm,
+	width=13cm,
 	height=5cm,
 	ylabel=$time$,
 	xlabel=$size$,
@@ -109,7 +105,7 @@ Implementacja algorytmu konstruowania drzewa AVL metodą przeszukiwania binarneg
 \medskip
 \begin{tikzpicture}
 \begin{axis}[
-	width=10cm,
+	width=13cm,
 	height=5cm,
 	ylabel=$time$,
 	xlabel=$size$,
@@ -142,7 +138,7 @@ Implementacja algorytmu konstruowania drzewa AVL metodą przeszukiwania binarneg
 \medskip
 \begin{tikzpicture}
 \begin{axis}[
-	width=10cm,
+	width=13cm,
 	height=5cm,
 	ylabel=$time$,
 	xlabel=$size$,
@@ -162,17 +158,19 @@ Implementacja algorytmu konstruowania drzewa AVL metodą przeszukiwania binarneg
 \end{tikzpicture}
 \medskip
 \section{Podsumowanie}
+Wartości próbkowania:
+\begin{description}
+\item[Rozmiar] 1000 - 13000
+\item[Krok] 1000
+\item[Liczność] 50x
+\end{description}
 
+Jak łatwo można zaobserwować, drzewo AVL tworzy się szybciej oraz wymaga mniej czasu na pobieranie wartości niż BST z tymi samymi danymi.
+Drzewo AVL powstaje tak naprawdę dużo dłużej, gdyż wymaga uformowania drzewa BST z podanych wartości, lecz czas  na to potrzebny nie jest brany pod uwagę podczas liczenia.
 
-Na podanych wykresach widać, różnice między AVL i BST. Przy tworzeniu BST dokonujemy prostych porównań i wsadzamy w pierwsze wolne miejsce nowy node. Inaczej sprawa wygląda w AVL gdzie po każdorazowym wsadzeniu danych musimy przebudować drzewo, równoważąc je. Istnieje jednak wyjątek od takich sytacji, jeśli dane dodawane do drzewa AVL są, pierwotnie posegregowane. W takiej sytuacji nie trzeba drzewa równoważyć, bo dane układają się same.
+Drzewo AVL teoretycznie jest nieporównywanie szybsze, podczas pobierania wartości, ale operacje dodawania i usuwania elementów, zajmują odpowiednio więcej czasu ponieważ wymagają wyważania lokalnego drzewa.
 
-Ten minus AVL powinien być jednak mniej dotkliwy w perspektywie częstego wyszukiwania w drzewia danych. AVL z definicji zapewnia średnią najkrótszą drogę dostępu do nodów.
-
-Czemu więc wyszukiwanie najmniejszej wartości pokrywa się czasowo z BST? Trudno na to odpowiedzieć. Trzeba wziąć pod uwagę, że implementacja tych struktur wraz z testami odbyła się przy pomocy Javy. Duże wahania mogą zostać tym faktem wytłumaczone, tym bardziej, że czasy działania algorytmów są niesamowicie małe.
-
-Próbkowanie odbyło się na grupach o liczności 30 egzemplarzy na każdy krok, co w teorii powinno zminimalizować różnice i wypłaszczyć wykresy. Niestety przez możliwe odchyły maksymalne, średnia zamiast trzymać się "idealnego wykresu" zaczyna pokazywać coraz więcej szumów. Do podobnej sytuacji doszło przy zmniejszeniu kroku generowanych wartości.
-
-Zaobserwować mnożna, że balansowanie, drzewa jest niemalże liniowe, mimo widocznych szumów.
+Kiedy stosować jaką strukturę? Jeśli potrzebujemy często dodawać i usuwać wartości to BST będzie idealnym wyborem. AVL użyjemy w sytuacji gdy skupiać się będziemy na pobieraniu informacji i ich statycznym przetrzymywaniu.
 
 \section{Kod}
 

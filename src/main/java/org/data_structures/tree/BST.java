@@ -3,28 +3,32 @@ package org.data_structures.tree;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
-import org.data_structures.utility.Duration;
-import org.data_structures.utility.Examined;
-import org.data_structures.utility.Measurement;
+import org.data_structures.utility.annotation.Duration;
+import org.data_structures.utility.annotation.Exam;
+import org.data_structures.utility.annotation.Examined;
 import org.data_structures.utility.Pair;
-import org.data_structures.utility.Scale;
+import org.data_structures.utility.annotation.Scale;
+import org.data_structures.utility.Structure;
 
-import java.lang.annotation.Inherited;
 import java.util.ArrayList;
 import java.util.List;
 
 
 @Examined
-public class BST<T extends Comparable<T>> {
+public class BST<T extends Comparable<T>> extends Structure {
     public static<T extends Comparable<T>> BST<T> of(List<T> values) {
         return new BST<>(new ArrayList<>(values));
     }
 
     @Getter(AccessLevel.PROTECTED)
-    @Setter(AccessLevel.PROTECTED)
     private TreeNode<T> head;
 
+    protected void setHead(TreeNode<T> newHead) {
+        if (newHead != null)
+            newHead.setParent(null);
 
+        head = newHead;
+    }
 
     @Scale("size")
     public long getSize() {
@@ -104,6 +108,7 @@ public class BST<T extends Comparable<T>> {
      * Values are added to the list in chronological order <br> Head -> Minimal value
      * @return values at trace to minimum value in tree
      */
+    @Exam
     public List<T> traceMin() {
         List<T> ans = new ArrayList<>();
         var pointer = getHead();
@@ -156,21 +161,24 @@ public class BST<T extends Comparable<T>> {
         return find(getHead(), value);
     }
 
-    private void traceInOrder(TreeNode<T> node, List<T> list) {
+
+    private void traceInOrder(TreeNode<T> node, List<T> treeAsList) {
         if (node != null) {
-            traceInOrder(node.getChildLeft(), list);
+            traceInOrder(node.getChildLeft(), treeAsList);
 
-            list.add(node.getVal());
+            treeAsList.add(node.getVal());
 
-            traceInOrder(node.getChildRight(), list);
+            traceInOrder(node.getChildRight(), treeAsList);
         }
+
     }
 
     @Setter
     protected long traceInOrderTime = 0;
+
+    @Exam
     public List<T> traceInOrder() {
         List<T> treeAsList = new ArrayList<>();
-
         final var start = System.nanoTime();
         traceInOrder(getHead(), treeAsList);
         traceInOrderTime = System.nanoTime() - start;
@@ -218,152 +226,232 @@ public class BST<T extends Comparable<T>> {
         System.out.println(treeAsList);
     }
 
-    private TreeNode<T> removeNode(TreeNode<T> node) {
-        if (getHead() == node) {
-            setHead(null);
-            return getHead();
-        }
+    private TreeNode<T> getClosestChild(TreeNode<T> node) {
+        TreeNode<T> left;
+        TreeNode<T> right;
+        TreeNode<T> tmp = node.getChildRight();
 
-        var parent = node.getParent();
+        do {
+            right = tmp;
+            if (tmp != null)
+                tmp = tmp.getChildLeft();
+        } while (tmp != null);
 
-        if (parent.getChildLeft() == node)
-            parent.setChildLeft(null);
-        else
-            parent.setChildRight(null);
-        return parent;
+        tmp = node.getChildLeft();
+        do {
+            left = tmp;
+            if (tmp != null)
+                tmp = tmp.getChildRight();
+        } while (tmp != null);
+
+
+        if (left == null) return right;
+        else return left;
+
     }
 
-    private int toVine(TreeNode<T> grand){
-        int count = 0;
-        var tmp = grand.getChildRight();
+    private TreeNode<T> removeNode(TreeNode<T> node) {
+        boolean hasLeft = node.hasLeftChild();
+        boolean hasRight = node.hasRightChild();
+        boolean hasParent = node.hasParent();
 
-        while (tmp != null) {
-            if (tmp.hasLeftChild()) {
-                var rotationResult = rightRotation(tmp, grand);
-                tmp = rotationResult.getFirst();
-                grand = rotationResult.getSecond();
+        if (hasLeft && hasRight) {
+            var closestChild = getClosestChild(node);
+            removeNode(closestChild);
+
+            closestChild.setChildRight(node.getChildRight());
+            closestChild.setChildLeft(node.getChildLeft());
+
+            if (hasParent) {
+                if (node.isChildLeft())
+                    node.getParent().setChildLeft(closestChild);
+                else
+                    node.getParent().setChildRight(closestChild);
+
+                return closestChild.getParent();
             }
             else {
-                count++;
-                grand = tmp;
-                tmp = tmp.getChildRight();
+                setHead(closestChild);
+                return getHead();
+            }
+        }
+        else if (hasLeft) {
+            if (hasParent) {
+                var parent = node.getParent();
+
+                if (node.isChildLeft())
+                    parent.setChildLeft(node.getChildLeft());
+                else
+                    parent.setChildRight(node.getChildLeft());
+
+                return parent;
+            }
+            else {
+                setHead(node.getChildLeft());
+                return getHead();
+            }
+
+        }
+        else if (hasRight) {
+            if (hasParent) {
+                var parent = node.getParent();
+
+                if (node.isChildLeft())
+                    parent.setChildLeft(node.getChildRight());
+                else
+                    parent.setChildRight(node.getChildRight());
+
+                return parent;
+            }
+            else {
+                setHead(node.getChildRight());
+                return getHead();
+            }
+        }
+        else {
+            var parent = node.getParent();
+            if (hasParent) {
+                if (node.isChildLeft())
+                    parent.setChildLeft(null);
+                else
+                    parent.setChildRight(null);
+            }
+            else setHead(null);
+
+            return parent;
+
+        }
+    }
+
+    /**
+     *
+     * @param node pivot of rotation
+     * @return pair of node and rotator
+     */
+    Pair<TreeNode<T>, TreeNode<T>> RRRotation(TreeNode<T> node) {
+        if (node == null) return null;
+        if (node == getHead()) return Pair.of(node, null);
+
+        var rotator = node.getParent();
+        var rotatorParent = rotator.getParent();
+
+        if (rotatorParent != null) {
+            if (rotator.isChildLeft())
+                rotatorParent.setChildLeft(node);
+            else
+                rotatorParent.setChildRight(node);
+        }
+        else {
+            setHead(node);
+        }
+
+        rotator.setChildLeft(node.getChildRight());
+        node.setChildRight(rotator);
+
+        return Pair.of(node, rotator);
+    }
+
+    /**
+     *
+     * @param node pivot of rotation
+     * @return pair of node and rotator
+     */
+    Pair<TreeNode<T>, TreeNode<T>> LLRotation(TreeNode<T> node) {
+        if (node == null) return null;
+        if (node == getHead()) return Pair.of(node, null);
+
+        var rotator = node.getParent();
+        var rotatorParent = rotator.getParent();
+
+        if (rotatorParent != null) {
+            if (rotator.isChildLeft())
+                rotatorParent.setChildLeft(node);
+            else
+                rotatorParent.setChildRight(node);
+        }
+        else {
+            setHead(node);
+        }
+
+        rotator.setChildRight(node.getChildLeft());
+        node.setChildLeft(rotator);
+
+
+        return Pair.of(node, rotator);
+    }
+
+    TreeNode<T> LRRotation(TreeNode<T> node) {
+        LLRotation(node);
+        RRRotation(node);
+
+        return node;
+    }
+
+    TreeNode<T> RLRotation(TreeNode<T> node) {
+        RRRotation(node);
+        LLRotation(node);
+
+        return node;
+    }
+
+
+    private int toVine(){
+        var node = getHead();
+        while (node != null) {
+            while (node != null && !node.hasLeftChild())
+                node = node.getChildRight();
+
+
+            if (node  != null) {
+                RRRotation(node.getChildLeft());
+                node = getHead();
             }
         }
 
-        return count;
+        return traceInOrder().size();
     }
 
-    /**
-     *
-     * @param node pivot of rotation
-     * @param rotator node to rotated
-     * @return pair of node and rotator
-     */
-    protected Pair<TreeNode<T>, TreeNode<T>> rightRotation(TreeNode<T> node, TreeNode<T> rotator) {
-        var oldTmp = node;
-        node = node.getChildLeft();
-        oldTmp.setChildLeft(node.getChildRight());
-        node.setChildRight(oldTmp);
-        rotator.setChildRight(node);
 
-        return Pair.of(node, rotator);
-    }
-
-    private void compress(TreeNode<T> grand, int m) {
-        var tmp = grand.getChildRight();
-
-        for (int i = 0; i < m; i++) {
-            var rotationResult = leftRotation(tmp, grand);
-            tmp = rotationResult.getFirst();
-            grand = rotationResult.getSecond();
-        }
-    }
-
-    /**
-     *
-     * @param node pivot of rotation
-     * @param rotator node to rotated
-     * @return pair of node and rotator
-     */
-    protected Pair<TreeNode<T>, TreeNode<T>> leftRotation(TreeNode<T> node, TreeNode<T> rotator) {
-        var oldTmp = node;
-        node = node.getChildRight();
-        rotator.setChildRight(node);
-        oldTmp.setChildRight(node.getChildLeft());
-        node.setChildLeft(oldTmp);
-        rotator = node;
-        node = node.getChildRight();
-
-        return Pair.of(node, rotator);
-    }
-
-    private TreeNode<T> balanceBST(TreeNode<T> root)
+    private void balanceBST()
     {
-        var grand = new TreeNode<T>(null);
-
-        grand.setChildRight(root);
-
-        int count = toVine(grand);
+        int count = toVine();
         int h = (int)(Math.log(count + 1D) / Math.log(2));
         int m = (int)Math.pow(2, h) - 1;
 
-        compress(grand, count - m);
+        var point = getHead();
+        for (int i = 0; i < count - m; i++) {
+            point = point.getChildRight();
 
-        for (m = m / 2; m > 0; m /= 2)
-            compress(grand, m);
+            LLRotation(point);
+            point = point.getChildRight();
+        }
+        point=getHead();
+        m /= 2;
+        while (m > 0) {
+            for (int i = 0; i < m; i++) {
+                point = point.getChildRight();
 
-        return grand.getChildRight();
+                LLRotation(point);
+                point = point.getChildRight();
+            }
+            point = getHead();
+            m /= 2;
+        }
     }
 
     @Setter
     protected long balanceTime = 0;
+
+    @Exam
     public void balance() {
         final var start = System.nanoTime();
-        setHead(balanceBST(getHead()));
+        balanceBST();
         balanceTime = System.nanoTime() - start;
     }
 
-    public void deleteNode(T key) {
+    public void removeNode(T key) {
         var node = find(key);
-        if (!node.hasRightChild() && !node.hasLeftChild())
-            removeNode(node);
-        else if (!node.hasLeftChild()){
-            if(node.getParent() == null) {
-                setHead(node.getChildRight());
-                getHead().setParent(null);
-                return;
-            }
-            else if (node.getParent().getVal().compareTo(node.getVal()) > 0)
-                node.getParent().setChildLeft(node.getChildRight());
-            else
-                node.getParent().setChildRight(node.getChildRight());
-            removeNode(node);
-        } else if (!node.hasRightChild()) {
-            if(node.getParent() == null) {
-                setHead(node.getChildLeft());
-                getHead().setParent(null);
-                return;
-            }
-            else if (node.getParent().getVal().compareTo(node.getVal()) > 0)
-                node.getParent().setChildLeft(node.getChildLeft());
-            else
-                node.getParent().setChildRight(node.getChildLeft());
-            removeNode(node);
-        }
-        else {
-            var succ = node.getChildRight();
-
-            while (succ.hasLeftChild())
-                succ = succ.getChildLeft();
-
-
-            var succParent = succ.getParent();
-            if (succParent != node)
-                succParent.setChildLeft(succ.getChildRight());
-            else
-                succParent.setChildRight(succ.getChildRight());
-
-            node.setVal(succ.getVal());
-        }
+        removeNode(node);
     }
+
 }

@@ -1,4 +1,4 @@
-package org.data_structures.utility;
+package org.data_structures.utility.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;
@@ -9,6 +9,6 @@ import java.lang.annotation.Target;
 @Inherited
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
-public @interface Scale {
-    String value() default "scale";
+public @interface Measurement {
+    String value() default "";
 }

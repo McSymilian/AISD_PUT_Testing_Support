@@ -10,10 +10,10 @@ import java.util.Random;
 public abstract class DataStructuresTest {
     private Random random = new Random(System.nanoTime());
     public List<Integer> generateDataSet(int size) {
-        return RandomListGenerator.generateList(size, 0, 100);
+        return RandomListGenerator.generateList(size, Integer.MIN_VALUE, Integer.MAX_VALUE);
     }
     public List<Integer> generateDataSet() {
-        return generateDataSet(10);
+        return generateDataSet(100000);
     }
 
     public List<Integer> getDataSet() {

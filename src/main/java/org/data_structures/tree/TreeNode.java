@@ -19,6 +19,22 @@ public class TreeNode<T> {
         return new TreeNode<>(val);
     }
 
+    public boolean hasParent() {
+        return getParent() != null;
+    }
+
+    public boolean isChildLeft() {
+        if (!hasParent()) return false;
+
+        return getParent().getChildLeft() == this;
+    }
+
+    public boolean isChildRight() {
+        if (!hasParent()) return false;
+
+        return getParent().getChildRight() == this;
+    }
+
     public boolean hasLeftChild() {
         return getChildLeft() != null;
     }
@@ -52,4 +68,5 @@ public class TreeNode<T> {
     public int hashCode() {
         return Objects.hash(val, parent, childLeft, childRight);
     }
+
 }
