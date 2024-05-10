@@ -12,14 +12,14 @@ class AVLTest extends DataStructuresTest {
 
     @Test
     void construct() {
-        var data = generateDataSet();
+        var data = getDataSet();
         var avl = new AVL<>(data);
         Assertions.assertEquals(data.stream().sorted().toList(), avl.traceInOrder());
     }
 
     @Test
     void add() {
-        var data = generateDataSet();
+        var data = getDataSet();
 
         var tree = new AVL<Integer>(new ArrayList<>());
         for (var val: data) {
@@ -35,15 +35,15 @@ class AVLTest extends DataStructuresTest {
     @Test
     void delete() {
         var avl = new AVL<>(getDataSet());
-        avl.removeNode(50);
+        avl.removeNode(4);
         var list = new ArrayList<>(getDataSet());
         list.removeFirst();
-        Assertions.assertEquals(list.stream().sorted().toList(), avl.traceInOrder());
+        Assertions.assertEquals(List.of(1, 2, 5, 6, 7, 8, 9, 10, 12), avl.traceInOrder());
     }
 
     @Test
     void traceInOrder() {
-        var data = new ArrayList<>(generateDataSet(0x800000));
+        var data = new ArrayList<>(getDataSet());
 
         var tree = new AVL<>(new ArrayList<>(data));
 
@@ -55,7 +55,7 @@ class AVLTest extends DataStructuresTest {
 
     @Test
     void traceMin() {
-        var data = new ArrayList<>(generateDataSet());
+        var data = new ArrayList<>(getDataSet());
 
         var tree = new AVL<>(new ArrayList<>(data));
 

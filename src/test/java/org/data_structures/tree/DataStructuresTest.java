@@ -17,6 +17,6 @@ public abstract class DataStructuresTest {
     }
 
     public List<Integer> getDataSet() {
-        return List.of(50, 30, 70, 80, 60, 20, 40);
+        return List.of(6, 4, 2, 5, 8, 7, 9, 10, 1, 12);
     }
 }
