@@ -6,7 +6,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class GraphMatrixTest extends MatrixTest {
+class GraphMatrixTest extends MatrixTestDataSupplier {
 
     @Test
     void dfs() {
