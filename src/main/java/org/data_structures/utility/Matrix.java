@@ -2,12 +2,13 @@ package org.data_structures.utility;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class Matrix {
-    private final List<List<Integer>> matrix;
+    private final List<List<Integer>> content;
 
-    public Matrix(List<List<Integer>> matrix) {
-        this.matrix = matrix;
+    public Matrix(List<List<Integer>> content) {
+        this.content = content;
     }
 
     public Matrix(int size) {
@@ -15,48 +16,48 @@ public class Matrix {
     }
 
     public Matrix(int wight, int height) {
-        matrix = new ArrayList<>(wight);
+        content = new ArrayList<>(wight);
         for (int i = 0; i < wight; i++) {
-            matrix.add(new ArrayList<>(height));
+            content.add(new ArrayList<>(height));
             for (int j = 0; j < height; j++) {
-                matrix.get(i).add(null);
+                content.get(i).add(null);
             }
         }
     }
 
     public Integer get(int row, int column) {
-        if (matrix.get(row) == null || matrix.get(row).get(column) == null)
+        if (content.get(row) == null || content.get(row).get(column) == null)
             return null;
 
-        return matrix.get(row).get(column);
+        return content.get(row).get(column);
     }
 
     public void set(int row, int column, Integer value) {
-        matrix.get(row).set(column, value);
+        content.get(row).set(column, value);
     }
 
     public int getRowCount() {
-        return matrix.size();
+        return content.size();
     }
 
     public int getColumnCount() {
-        return matrix.getFirst().size();
+        return content.getFirst().size();
     }
 
     public Matrix copy() {
-        List<List<Integer>> copy = new ArrayList<>(getRowCount());
-        for (var row: matrix) {
-            copy.add(new ArrayList<>(row));
-        }
-        return new Matrix(copy);
+
+        return new Matrix(content.stream()
+                .map(ArrayList::new)
+                .collect(Collectors.toList())
+        );
     }
 
     public void removeRow(int row) {
-        matrix.set(row, null);
+        content.set(row, null);
     }
 
     public void removeColumn(int column) {
-        for (var row: matrix) {
+        for (var row: content) {
             if (row != null)
                 row.set(column, null);
         }
@@ -68,10 +69,10 @@ public class Matrix {
     }
 
     public boolean isEmpty() {
-        if (matrix.isEmpty())
+        if (content.isEmpty())
             return true;
 
-        for (var row: matrix)
+        for (var row: content)
             if (row != null && !row.isEmpty())
                 return false;
 
@@ -82,7 +83,7 @@ public class Matrix {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        for (var row: matrix) {
+        for (var row: content) {
             if (row == null) {
                 sb.append("null\n");
                 continue;

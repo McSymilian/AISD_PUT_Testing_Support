@@ -1,6 +1,5 @@
 package org.data_structures.graph;
 
-import org.data_structures.data.MatrixGenerator;
 import org.data_structures.utility.Matrix;
 
 import java.util.ArrayList;
@@ -8,7 +7,7 @@ import java.util.List;
 
 import static org.data_structures.data.MatrixGenerator.*;
 
-public class MatrixTest {
+public class MatrixTestDataSupplier {
     public Matrix getTestNeighbourMatrix() {
         return generateMatrix(getTestEdges());
     }

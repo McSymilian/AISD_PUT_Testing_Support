@@ -6,6 +6,8 @@ import org.data_structures.utility.annotation.Examined;
 import org.data_structures.utility.annotation.Measurement;
 import org.data_structures.utility.Pair;
 import org.data_structures.utility.annotation.Scale;
+import org.data_structures.utility.exception.ResultFileCreationException;
+import org.data_structures.utility.exception.ResultMergingException;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -30,15 +32,15 @@ public class ResultPrinter {
     public static void mergeAndPrintResult(List<Pair<String, Object>> examinedResultList) {
         log.info("Results are being merged and printed...");
         examinedResultList.stream()
-                .filter(it -> it.getSecond().getClass().isAnnotationPresent(Examined.class))
-                .collect(Collectors.groupingBy(Pair::getFirst))
+                .filter(it -> it.second().getClass().isAnnotationPresent(Examined.class))
+                .collect(Collectors.groupingBy(Pair::first))
                 .forEach((dataGeneratorName, structures) -> structures.stream()
-                        .collect(Collectors.groupingBy(it -> it.getSecond().getClass().getSimpleName()))
+                        .collect(Collectors.groupingBy(it -> it.second().getClass().getSimpleName()))
                         .forEach((structureName, list) -> {
                             var file = createFile(dataGeneratorName, structureName);
 
                             var measuredList = list.stream()
-                                    .map(Pair::getSecond)
+                                    .map(Pair::second)
                                     .collect(Collectors.groupingBy(ResultPrinter::groupByScale))
                                     .entrySet()
                                     .stream()
@@ -61,7 +63,7 @@ public class ResultPrinter {
                                 printRows(measuredList, columnNames, writer);
 
                             } catch (IOException e) {
-                                throw new RuntimeException(e);
+                                throw new ResultFileCreationException(e);
                             }
                         }));
     }
@@ -76,13 +78,13 @@ public class ResultPrinter {
                 try {
                     writer.append(String.valueOf(map.get(value))).append(";");
                 } catch (IOException e) {
-                    throw new RuntimeException("Error while writing durations", e);
+                    throw new ResultFileCreationException("Error while writing durations", e);
                 }
             });
             try {
                 writer.append("\n");
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                throw new ResultFileCreationException(e);
             }
         };
     }
@@ -92,7 +94,7 @@ public class ResultPrinter {
             try {
                 writer.append(key).append(";");
             } catch (IOException e) {
-                throw new RuntimeException("Error while writing columns names to file", e);
+                throw new ResultFileCreationException("Error while writing columns names to file", e);
             }
         });
         writer.append("\n");
@@ -109,7 +111,7 @@ public class ResultPrinter {
             try {
                 file.createNewFile();
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                throw new ResultFileCreationException(e);
             }
         }
         return file;
@@ -126,7 +128,7 @@ public class ResultPrinter {
                     scaleName = scale.get().getAnnotation(Scale.class).value();
                 return (long) scale.get().invoke(it);
             } catch (IllegalAccessException | InvocationTargetException e) {
-                throw new RuntimeException(e);
+                throw new ResultMergingException(e);
             }
         } else {
             return 0L;
@@ -159,7 +161,7 @@ public class ResultPrinter {
                 try {
                     valuesListsMap.get(fieldName).add((long) method.invoke(object));
                 } catch (IllegalAccessException | InvocationTargetException e) {
-                    throw new RuntimeException(e);
+                    throw new ResultMergingException(e);
                 }
             });
         });

@@ -1,11 +1,11 @@
 package org.data_structures.data;
 
-import org.data_structures.graph.MatrixTest;
+import org.data_structures.graph.MatrixTestDataSupplier;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class MatrixGeneratorTest extends MatrixTest {
+class MatrixGeneratorTest extends MatrixTestDataSupplier {
 
     @Test
     void generateMatrix() {

@@ -3,6 +3,7 @@ package org.data_structures.utility.process;
 import lombok.extern.java.Log;
 import org.data_structures.utility.annotation.Exam;
 import org.data_structures.utility.Pair;
+import org.data_structures.utility.exception.AlgorithmExaminationException;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
@@ -17,14 +18,14 @@ public class FieldExamination {
     public static List<Pair<String, Object>> examFields(List<Pair<String, Object>> measurements) {
         log.info("Objects are being examined...");
         measurements.forEach(pair -> {
-            var examObj = pair.getSecond();
+            var examObj = pair.second();
             Arrays.stream(examObj.getClass().getMethods())
                     .filter(method -> method.isAnnotationPresent(Exam.class))
                     .forEach(method -> {
                         try {
                             method.invoke(examObj);
                         } catch (IllegalAccessException | InvocationTargetException e) {
-                            throw new RuntimeException(e);
+                            throw new AlgorithmExaminationException(e);
                         }
                     });
         });

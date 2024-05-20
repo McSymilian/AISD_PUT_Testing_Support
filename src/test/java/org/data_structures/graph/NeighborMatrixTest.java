@@ -7,7 +7,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class NeighborMatrixTest extends MatrixTest {
+class NeighborMatrixTest extends MatrixTestDataSupplier {
 
     @Test
     void dfs() {

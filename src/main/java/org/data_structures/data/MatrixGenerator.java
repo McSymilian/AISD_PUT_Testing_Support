@@ -1,16 +1,20 @@
 package org.data_structures.data;
 
 import org.data_structures.utility.Matrix;
+import org.data_structures.utility.Pair;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Random;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
-public class MatrixGenerator {
-    private MatrixGenerator() {
-        throw new IllegalStateException("Utility class");
-    }
+public class MatrixGenerator extends DataGenerator {
 
     public static Matrix parseMatrix(String matrix) {
         String[] rows = matrix.split("\n");
@@ -51,27 +55,21 @@ public class MatrixGenerator {
     }
 
     public static Matrix generateGraphMatrix(Matrix matrix) {
-        List<List<Integer>> succesors = new ArrayList<>();
+        List<List<Integer>> successors = new ArrayList<>();
         List<List<Integer>> predecessors = new ArrayList<>();
         List<List<Integer>> noIncidences = new ArrayList<>();
 
-        for (int vertix: matrix.getVertices()) {
-            List<Integer> vertixList = List.of(vertix);
-
-            succesors.add(new ArrayList<>(vertixList));
-            predecessors.add(new ArrayList<>(vertixList));
-            noIncidences.add(new ArrayList<>(vertixList));
-        }
+        initRelationsLists(matrix, successors, predecessors, noIncidences);
 
         for (int i = 0; i < matrix.getRowCount(); i++) {
             for (int j = 0; j < matrix.getColumnCount(); j++) {
                 switch (matrix.get(i, j)) {
                     case 1 -> {
-                        succesors.get(i).add(j);
+                        successors.get(i).add(j);
                         predecessors.get(j).add(i);
                     }
                     case -1 -> {
-                        succesors.get(j).add(i);
+                        successors.get(j).add(i);
                         predecessors.get(i).add(j);
                     }
                     case 0 -> {
@@ -86,56 +84,78 @@ public class MatrixGenerator {
         Matrix graphMatrix = new Matrix(matrix.getRowCount(), matrix.getColumnCount() + 3);
 
         for (int i = 0; i < matrix.getRowCount(); i++) {
-            var succs = succesors.get(i);
-            int succsIndex = 1;
-            graphMatrix.set(
-                    i,
-                    matrix.getColumnCount(),
-                    succs.size() > 1 ? succs.get(succsIndex) + 1 : 0
-            );
+            setSuccessors(matrix, successors, i, graphMatrix);
 
-            for (int j = succsIndex; j <= succs.size(); j++) {
-                graphMatrix.set(
-                        i,
-                        succs.get(j - 1),
-                        succs.get(j < succs.size() ? j: j - 1) + 1
-                );
-            }
+            setPredecessors(matrix, predecessors, i, graphMatrix);
 
-            var preds = predecessors.get(i);
-            int predsIndex = 1;
-            graphMatrix.set(
-                    i,
-                    matrix.getColumnCount() + 1,
-                    preds.size() > 1 ? preds.get(predsIndex) + 1 : 0
-            );
-
-            for (int j = predsIndex; j <= preds.size(); j++) {
-                graphMatrix.set(
-                        i,
-                        preds.get(j - 1),
-                        preds.get(j < preds.size() ? j: j - 1) + 1 + matrix.getRowCount()
-                );
-            }
-
-            var noInc = noIncidences.get(i);
-            int noIncIndex = 1;
-            graphMatrix.set(
-                    i,
-                    matrix.getColumnCount() + 2,
-                    noInc.size() > 1 ? noInc.get(noIncIndex) + 1 : 0
-            );
-
-            for (int j = noIncIndex; j <= noInc.size(); j++) {
-                graphMatrix.set(
-                        i,
-                        noInc.get(j - 1),
-                        -(noInc.get(j < noInc.size() ? j: j - 1) + 1)
-                );
-            }
+            setNoIncidence(matrix, noIncidences, i, graphMatrix);
         }
 
         return graphMatrix;
+    }
+
+    private static void setNoIncidence(Matrix matrix, List<List<Integer>> noIncidences, int i, Matrix graphMatrix) {
+        var noInc = noIncidences.get(i);
+        int noIncIndex = 1;
+        graphMatrix.set(
+                i,
+                matrix.getColumnCount() + 2,
+                noInc.size() > 1 ? noInc.get(noIncIndex) + 1 : 0
+        );
+
+        for (int j = noIncIndex; j <= noInc.size(); j++) {
+            graphMatrix.set(
+                    i,
+                    noInc.get(j - 1),
+                    -(noInc.get(j < noInc.size() ? j: j - 1) + 1)
+            );
+        }
+    }
+
+    private static void setPredecessors(Matrix matrix, List<List<Integer>> predecessors, int i, Matrix graphMatrix) {
+        var preds = predecessors.get(i);
+        int predsIndex = 1;
+        graphMatrix.set(
+                i,
+                matrix.getColumnCount() + 1,
+                preds.size() > 1 ? preds.get(predsIndex) + 1 : 0
+        );
+
+        for (int j = predsIndex; j <= preds.size(); j++) {
+            graphMatrix.set(
+                    i,
+                    preds.get(j - 1),
+                    preds.get(j < preds.size() ? j: j - 1) + 1 + matrix.getRowCount()
+            );
+        }
+    }
+
+    private static void setSuccessors(Matrix matrix, List<List<Integer>> successors, int i, Matrix graphMatrix) {
+        var succs = successors.get(i);
+        int succsIndex = 1;
+        graphMatrix.set(
+                i,
+                matrix.getColumnCount(),
+                succs.size() > 1 ? succs.get(succsIndex) + 1 : 0
+        );
+
+        for (int j = succsIndex; j <= succs.size(); j++) {
+            graphMatrix.set(
+                    i,
+                    succs.get(j - 1),
+                    succs.get(j < succs.size() ? j: j - 1) + 1
+            );
+        }
+    }
+
+    private static void initRelationsLists(Matrix matrix, List<List<Integer>> succesors, List<List<Integer>> predecessors, List<List<Integer>> noIncidences) {
+        for (int vertix: matrix.getVertices()) {
+            List<Integer> vertixList = List.of(vertix);
+
+            succesors.add(new ArrayList<>(vertixList));
+            predecessors.add(new ArrayList<>(vertixList));
+            noIncidences.add(new ArrayList<>(vertixList));
+        }
     }
 
     public static Matrix generateGraphMatrix(List<List<Integer>> edges) {
@@ -154,5 +174,48 @@ public class MatrixGenerator {
             e.printStackTrace();
         }
         return edges;
+    }
+
+    private static final Random random = new Random();
+    public static List<List<Integer>> generateRandomEdges(int vertices) {
+        Set<Pair<Integer, Integer>> randomEdges = new TreeSet<>();
+        int maxEdges = vertices * (vertices - 1) / 2;
+        int edges = maxEdges / 2;
+
+        while (randomEdges.size() < edges) {
+            int beg = random.nextInt(1, vertices - 2);
+            int dest = random.nextInt(beg  + 1, vertices + 1);
+            randomEdges.add(Pair.of(beg, dest));
+        }
+
+        var res = new ArrayList<>(randomEdges
+                .stream()
+                .map(pair -> List.of(pair.first(), pair.second()))
+                .toList());
+
+        res.addFirst(List.of(vertices, edges));
+        return res;
+    }
+
+    @Override
+    public List<Integer> generate(int size, int minValue, int maxValue) {
+        return generateRandomEdges(size)
+                .stream()
+                .flatMap(Collection::stream)
+                .toList();
+    }
+
+    public static List<List<Integer>> map(List<Integer> input) {
+        final AtomicInteger counter = new AtomicInteger(0);
+        return input.stream()
+                .collect(
+                        Collectors.groupingBy(item -> {
+                            final int i = counter.getAndIncrement();
+                            return (i % 2 == 0) ? i : i - 1;
+                        })
+                )
+                .values()
+                .stream()
+                .toList();
     }
 }

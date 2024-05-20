@@ -1,8 +1,8 @@
 package org.data_structures.utility.process;
 
 import lombok.extern.java.Log;
-import org.data_structures.tree.AVL;
-import org.data_structures.tree.BST;
+import org.data_structures.graph.GraphMatrix;
+import org.data_structures.graph.NeighborMatrix;
 import org.data_structures.utility.annotation.Constructor;
 import org.data_structures.utility.Pair;
 
@@ -34,6 +34,6 @@ public class ExaminedGenerator {
     }
 
     private static List<Constructor> getStructures() {
-        return List.of(BST::of, AVL::of);
+        return List.of(GraphMatrix::of, NeighborMatrix::of);
     }
 }

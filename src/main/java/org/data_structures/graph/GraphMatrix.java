@@ -1,7 +1,9 @@
 package org.data_structures.graph;
 
 import lombok.Getter;
+import org.data_structures.data.MatrixGenerator;
 import org.data_structures.utility.Matrix;
+import org.data_structures.utility.Structure;
 import org.data_structures.utility.annotation.Duration;
 import org.data_structures.utility.annotation.Exam;
 import org.data_structures.utility.annotation.Examined;
@@ -14,7 +16,7 @@ import java.util.Collections;
 import java.util.List;
 
 @Examined
-public class GraphMatrix {
+public class GraphMatrix extends Structure {
     private final Matrix matrix;
 
     /**
@@ -32,19 +34,19 @@ public class GraphMatrix {
 
     private final int size;
     public GraphMatrix(Matrix matrix) {
-        this.matrix = matrix;
+        this.matrix = matrix.copy();
 
         size = matrix.getRowCount();
-        lstTarjanColors = new ArrayList<>(Arrays.asList(new Integer[getSize()]));
+        lstTarjanColors = new ArrayList<>(Arrays.asList(new Integer[Math.toIntExact(getSize())]));
         Collections.fill(lstTarjanColors, 0);
 
         dfsPath =  new ArrayList<>(matrix.getRowCount());
         delPath = new ArrayList<>(matrix.getRowCount());
     }
 
-    @Scale
-    public Integer getSize() {
-        return size;
+    @Scale("size")
+    public Long getSize() {
+        return (long) size;
     }
 
     private Long dfsTime = 0L;
@@ -59,11 +61,14 @@ public class GraphMatrix {
     public List<Integer> dfs() {
         dfsTime = System.nanoTime();
 
-        for (int i = 0; i < matrix.getRowCount(); i++)
+        int i = 0;
+        while (i < matrix.getRowCount()) {
             if (lstTarjanColors.get(i) == 0) {
                 dfs(i);
-                i = 0;
+                i = -1;
             }
+            i++;
+        }
 
         dfsTime = System.nanoTime() - dfsTime;
 
@@ -76,7 +81,8 @@ public class GraphMatrix {
             throw new LoopException("Graph has loop", matrix);
 
         for (int i = 0; i < getSize(); i++) {
-            if (matrix.get(node, i) >= 1 && matrix.get(node, i) < getSize() + 1 && lstTarjanColors.get(i) == 0) {
+            Integer edge = matrix.get(node, i);
+            if (edge != null && edge >= 1 && edge < getSize() + 1 && lstTarjanColors.get(i) == 0) {
                 dfs(i);
             }
         }
@@ -141,5 +147,13 @@ public class GraphMatrix {
 
 
         return inDegree;
+    }
+
+    public static Structure of(List<Integer> values) {
+        List<List<Integer>> edges = new ArrayList<>();
+        for (int i = 0; i < values.size(); i += 2)
+            edges.add(new ArrayList<>(List.of(values.get(i), values.get(i + 1))));
+
+        return new GraphMatrix(MatrixGenerator.generateGraphMatrix(MatrixGenerator.generateMatrix(edges)));
     }
 }

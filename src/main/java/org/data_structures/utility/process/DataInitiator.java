@@ -2,7 +2,7 @@ package org.data_structures.utility.process;
 
 import lombok.extern.java.Log;
 import org.data_structures.data.DataGenerator;
-import org.data_structures.data.RandomListGenerator;
+import org.data_structures.data.MatrixGenerator;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -22,7 +22,7 @@ public class DataInitiator {
     }
 
     private static List<DataGenerator> dataGeneratorsList() {
-        return List.of(new RandomListGenerator());
+        return List.of(new MatrixGenerator());
     }
 
     private static Map<String, List<List<Integer>>> dataSets(List<DataGenerator> dataGeneratorList) {
@@ -37,12 +37,11 @@ public class DataInitiator {
     }
 
     private static List<List<Integer>> generateDatasets(DataGenerator datasetGenerator) {
-
         List<List<Integer>> res = new ArrayList<>();
-        for (int i = 1000; i <= 13000; i += 1000)
-            for (int j = 0; j < 50; j++)
+        for (int i = 10; i <= 1000; i *= 10)
+            for (int j = 0; j < 50; j++) {
                 res.add(datasetGenerator.generate(i, Integer.MIN_VALUE, Integer.MAX_VALUE));
-
+            }
 
         return res;
     }
