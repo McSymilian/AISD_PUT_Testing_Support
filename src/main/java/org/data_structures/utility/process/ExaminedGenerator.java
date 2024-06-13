@@ -1,6 +1,10 @@
 package org.data_structures.utility.process;
 
 import lombok.extern.java.Log;
+import org.data_structures.cycles.EulerCyclerList;
+import org.data_structures.cycles.EulerCyclerMatrix;
+import org.data_structures.cycles.HamiltonianCyclerList;
+import org.data_structures.cycles.HamiltonsCyclerMatrix;
 import org.data_structures.graph.GraphMatrix;
 import org.data_structures.graph.NeighborMatrix;
 import org.data_structures.utility.annotation.Constructor;
@@ -34,6 +38,6 @@ public class ExaminedGenerator {
     }
 
     private static List<Constructor> getStructures() {
-        return List.of(GraphMatrix::of, NeighborMatrix::of);
+        return List.of(EulerCyclerList::of, EulerCyclerMatrix::of);
     }
 }

@@ -26,4 +26,14 @@ class MatrixGeneratorTest extends MatrixTestDataSupplier {
         assertArrayEquals(getTestNeighbourMatrix().toArray(), MatrixGenerator.generateMatrix(getTestEdges()).toArray());
         assertArrayEquals(getTestGraphMatrix().toArray(), MatrixGenerator.generateGraphMatrix(getTestEdges()).toArray());
     }
+
+    @Test
+    void generateRandomEdges() {
+        int size = 100;
+        var edges = MatrixGenerator.generateRandomEdges(size);
+        assertEquals((size * (size - 1) >> 2) + 1, edges.size());
+        for (var edge : edges) {
+            assertEquals(2, edge.size());
+        }
+    }
 }

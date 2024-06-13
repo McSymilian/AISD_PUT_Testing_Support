@@ -36,7 +36,7 @@ public class NeighborMatrix extends Structure {
     private final int size;
 
     public NeighborMatrix(Matrix matrix) {
-        this.matrix = matrix.copy();
+        this.matrix = matrix.clone();
 
         size = matrix.getRowCount();
         lstTarjanColors = new ArrayList<>(Arrays.asList(new Integer[Math.toIntExact(getSize())]));

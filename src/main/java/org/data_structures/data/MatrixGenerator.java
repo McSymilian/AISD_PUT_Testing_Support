@@ -11,8 +11,6 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 
 public class MatrixGenerator extends DataGenerator {
 
@@ -31,16 +29,16 @@ public class MatrixGenerator extends DataGenerator {
             matrixArray.add(row);
         }
 
-        return new Matrix(matrixArray);
+        return generateMatrix(matrixArray);
     }
 
     public static Matrix generateMatrix(List<List<Integer>> edges) {
         Matrix matrix = new Matrix(edges.getFirst().getFirst());
-
         for (int i = 1; i < edges.size(); i++) {
             List<Integer> edge = edges.get(i);
             matrix.set(edge.get(0) - 1, edge.get(1) - 1, 1);
-            matrix.set(edge.get(1) - 1, edge.get(0) - 1, -1);
+            if (matrix.get(edge.get(1) - 1, edge.get(0) - 1) == null)
+                matrix.set(edge.get(1) - 1, edge.get(0) - 1, -1);
         }
 
         for (int i = 0; i < matrix.getRowCount(); i++) {
@@ -179,13 +177,14 @@ public class MatrixGenerator extends DataGenerator {
     private static final Random random = new Random();
     public static List<List<Integer>> generateRandomEdges(int vertices) {
         Set<Pair<Integer, Integer>> randomEdges = new TreeSet<>();
-        int maxEdges = vertices * (vertices - 1) / 2;
-        int edges = maxEdges / 2;
+        int maxEdges = (vertices * (vertices - 1)) >> 2;
 
-        while (randomEdges.size() < edges) {
-            int beg = random.nextInt(1, vertices - 2);
-            int dest = random.nextInt(beg  + 1, vertices + 1);
-            randomEdges.add(Pair.of(beg, dest));
+        while (randomEdges.size() < maxEdges) {
+            synchronized (random) {
+                int beg = random.nextInt(1, vertices - 1);
+                int dest = random.nextInt(beg + 1, vertices + 1);
+                randomEdges.add(Pair.of(beg, dest));
+            }
         }
 
         var res = new ArrayList<>(randomEdges
@@ -193,8 +192,10 @@ public class MatrixGenerator extends DataGenerator {
                 .map(pair -> List.of(pair.first(), pair.second()))
                 .toList());
 
-        res.addFirst(List.of(vertices, edges));
+        res.addFirst(List.of(vertices, maxEdges));
+
         return res;
+
     }
 
     @Override
@@ -206,16 +207,15 @@ public class MatrixGenerator extends DataGenerator {
     }
 
     public static List<List<Integer>> map(List<Integer> input) {
-        final AtomicInteger counter = new AtomicInteger(0);
-        return input.stream()
-                .collect(
-                        Collectors.groupingBy(item -> {
-                            final int i = counter.getAndIncrement();
-                            return (i % 2 == 0) ? i : i - 1;
-                        })
-                )
-                .values()
-                .stream()
-                .toList();
+        List<List<Integer>> result = new ArrayList<>();
+        for (int i = 0; i < input.size(); i += 2) {
+            List<Integer> pair = new ArrayList<>();
+            pair.add(input.get(i));
+            if (i + 1 < input.size()) {
+                pair.add(input.get(i + 1));
+            }
+            result.add(pair);
+        }
+        return result;
     }
 }

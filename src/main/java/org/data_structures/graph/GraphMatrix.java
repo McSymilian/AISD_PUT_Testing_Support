@@ -34,7 +34,7 @@ public class GraphMatrix extends Structure {
 
     private final int size;
     public GraphMatrix(Matrix matrix) {
-        this.matrix = matrix.copy();
+        this.matrix = matrix.clone();
 
         size = matrix.getRowCount();
         lstTarjanColors = new ArrayList<>(Arrays.asList(new Integer[Math.toIntExact(getSize())]));

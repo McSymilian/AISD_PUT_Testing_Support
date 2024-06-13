@@ -32,6 +32,18 @@ public class Matrix {
         return content.get(row).get(column);
     }
 
+    public List<Integer> getRow(int row) {
+        return content.get(row).stream().toList();
+    }
+
+    public List<Integer> getColumn(int column) {
+        List<Integer> columnList = new ArrayList<>();
+        for (var row: content) {
+            columnList.add(row.get(column));
+        }
+        return columnList;
+    }
+
     public void set(int row, int column, Integer value) {
         content.get(row).set(column, value);
     }
@@ -44,7 +56,7 @@ public class Matrix {
         return content.getFirst().size();
     }
 
-    public Matrix copy() {
+    public Matrix clone() {
 
         return new Matrix(content.stream()
                 .map(ArrayList::new)

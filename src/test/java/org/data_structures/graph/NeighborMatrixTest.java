@@ -14,6 +14,7 @@ class NeighborMatrixTest extends MatrixTestDataSupplier {
         NeighborMatrix neighborMatrix = new NeighborMatrix(MatrixGenerator.generateMatrix(MatrixGenerator.readEdgesFromFile("inputGraph.txt")));
         List<Integer> ans =neighborMatrix.dfs();
         assertEquals(List.of(3, 4, 0, 1, 2), ans);
+
     }
 
     @Test

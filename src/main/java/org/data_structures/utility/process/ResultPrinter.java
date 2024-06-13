@@ -3,9 +3,11 @@ package org.data_structures.utility.process;
 import lombok.extern.java.Log;
 import org.data_structures.utility.annotation.Duration;
 import org.data_structures.utility.annotation.Examined;
+import org.data_structures.utility.annotation.Factor;
 import org.data_structures.utility.annotation.Measurement;
 import org.data_structures.utility.Pair;
 import org.data_structures.utility.annotation.Scale;
+import org.data_structures.utility.exception.FactorSearchException;
 import org.data_structures.utility.exception.ResultFileCreationException;
 import org.data_structures.utility.exception.ResultMergingException;
 
@@ -21,7 +23,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Log
 public class ResultPrinter {
@@ -44,6 +48,33 @@ public class ResultPrinter {
                                     .collect(Collectors.groupingBy(ResultPrinter::groupByScale))
                                     .entrySet()
                                     .stream()
+                                    .flatMap(entry -> entry
+                                            .getValue()
+                                            .stream()
+                                            .collect(Collectors.groupingBy(it -> {
+                                                var factor = Arrays.stream(it.getClass().getDeclaredMethods())
+                                                        .filter(method -> method.isAnnotationPresent(Factor.class))
+                                                        .findFirst();
+                                                if (factor.isPresent()) {
+                                                    try {
+                                                        return (Comparable<?>) factor.get().invoke(it);
+                                                    } catch (IllegalAccessException | InvocationTargetException e) {
+                                                        throw new ResultMergingException(e);
+                                                    }
+                                                } else {
+                                                    return 0L;
+                                                }
+                                            }))
+                                            .values()
+                                            .stream()
+                                            .map(objects -> {
+                                                var tmp = Map.Entry.copyOf(entry);
+                                                tmp.setValue(objects);
+                                                return tmp;
+                                            })
+                                            .toList()
+                                            .stream()
+                                    )
                                     .map(ResultPrinter::mapToMapOfColumnNameAndAverageValue)
                                     .sorted(Comparator.comparingDouble(it -> it.get("size")))
                                     .toList();
@@ -140,6 +171,23 @@ public class ResultPrinter {
         long scale = entry.getKey();
         innerMeasurementsMap.put(scaleName == null ? "scale" : scaleName, (double) scale);
 
+        var input = entry.getValue();
+        Arrays.stream(
+                        input.getFirst().getClass()
+                                .getDeclaredMethods()
+                )
+                .filter(method -> method.isAnnotationPresent(Factor.class)
+                )
+                .collect(Collectors.toSet())
+                .forEach(method-> {
+            var factorName = method.getAnnotation(Factor.class).value();
+            try {
+                innerMeasurementsMap.put(factorName, (Double) method.invoke(entry.getValue().getFirst()));
+            } catch (IllegalAccessException | InvocationTargetException e) {
+                throw new FactorSearchException(e);
+            }
+        });
+
         var listToMeasure = entry.getValue();
         var durationsAndMeasurementMethods = Arrays.stream(
                         listToMeasure.getFirst().getClass()
@@ -149,7 +197,8 @@ public class ResultPrinter {
                         method.isAnnotationPresent(Duration.class)
                 )
                 .collect(Collectors.toSet())
-                .stream().toList();
+                .stream()
+                .toList();
 
         var valuesListsMap = new HashMap<String, List<Long>>();
         durationsAndMeasurementMethods.forEach(method -> {
